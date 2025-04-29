@@ -1,3 +1,13 @@
+## 3.1.0+1
+
+* updated `geolocator` version
+* update min SDK requirements
+* remove deprecated android methods
+
+## 3.0.4
+
+* updated `geolocator` version
+
 ## 3.0.3
 
 * updated `flutter_compass_v2` version
