@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_qiblah/flutter_qiblah.dart';
 import 'package:flutter_qiblah_example/loading_indicator.dart';
 import 'package:flutter_qiblah_example/location_error_widget.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
 class QiblahMaps extends StatefulWidget {
   static final meccaLatLong = const LatLng(21.422487, 39.826206);
@@ -38,7 +38,7 @@ class _QiblahMapsState extends State<QiblahMaps> {
     return Container(
       child: FutureBuilder(
         future: _future,
-        builder: (_, AsyncSnapshot<Position?> snapshot) {
+        builder: (_, AsyncSnapshot<LocationData?> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting)
             return LoadingIndicator();
           if (snapshot.hasError)
@@ -46,9 +46,12 @@ class _QiblahMapsState extends State<QiblahMaps> {
               error: snapshot.error.toString(),
             );
 
-          if (snapshot.data != null) {
-            final loc =
-                LatLng(snapshot.data!.latitude, snapshot.data!.longitude);
+          if (snapshot.data?.longitude != null &&
+              snapshot.data?.latitude != null) {
+            final loc = LatLng(
+              snapshot.data!.latitude!,
+              snapshot.data!.longitude!,
+            );
             position = loc;
           } else
             _positionStream.sink.add(position);
@@ -119,10 +122,10 @@ class _QiblahMapsState extends State<QiblahMaps> {
     );
   }
 
-  Future<Position?> _checkLocationStatus() async {
+  Future<LocationData?> _checkLocationStatus() async {
     final locationStatus = await FlutterQiblah.checkLocationStatus();
     if (locationStatus.enabled) {
-      return await Geolocator.getCurrentPosition();
+      return await Location().getLocation();
     }
     return null;
   }

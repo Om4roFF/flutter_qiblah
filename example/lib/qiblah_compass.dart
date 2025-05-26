@@ -6,7 +6,7 @@ import 'package:flutter_qiblah/flutter_qiblah.dart';
 import 'package:flutter_qiblah_example/loading_indicator.dart';
 import 'package:flutter_qiblah_example/location_error_widget.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:location/location.dart';
 
 class QiblahCompass extends StatefulWidget {
   @override
@@ -44,25 +44,20 @@ class _QiblahCompassState extends State<QiblahCompass> {
             return LoadingIndicator();
           if (snapshot.data!.enabled == true) {
             switch (snapshot.data!.status) {
-              case LocationPermission.always:
-              case LocationPermission.whileInUse:
+              case PermissionStatus.granted:
+              case PermissionStatus.grantedLimited:
                 return QiblahCompassWidget();
 
-              case LocationPermission.denied:
+              case PermissionStatus.denied:
                 return LocationErrorWidget(
                   error: "Location service permission denied",
                   callback: _checkLocationStatus,
                 );
-              case LocationPermission.deniedForever:
+              case PermissionStatus.deniedForever:
                 return LocationErrorWidget(
                   error: "Location service Denied Forever !",
                   callback: _checkLocationStatus,
                 );
-              // case GeolocationStatus.unknown:
-              //   return LocationErrorWidget(
-              //     error: "Unknown Location service error",
-              //     callback: _checkLocationStatus,
-              //   );
               default:
                 return const SizedBox();
             }
@@ -80,7 +75,7 @@ class _QiblahCompassState extends State<QiblahCompass> {
   Future<void> _checkLocationStatus() async {
     final locationStatus = await FlutterQiblah.checkLocationStatus();
     if (locationStatus.enabled &&
-        locationStatus.status == LocationPermission.denied) {
+        locationStatus.status == PermissionStatus.denied) {
       await FlutterQiblah.requestPermissions();
       final s = await FlutterQiblah.checkLocationStatus();
       _locationStreamController.sink.add(s);
